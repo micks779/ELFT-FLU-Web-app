@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// Role values: STAFF | VACCINATOR | FLU_LEAD
+// VaccinationStatus values: UNKNOWN | VACCINATED_ELFT | VACCINATED_ELSEWHERE | DECLINED
+
+model Staff {
+  id               String    @id @default(cuid())
+  email            String    @unique
+  assignmentNumber String?   @unique
+  firstName        String
+  lastName         String
+  directorate      String?
+  team             String?
+  jobTitle         String?
+  frontline        Boolean   @default(true)
+  active           Boolean   @default(true)
+  role             String    @default("STAFF")
+  esrConfirmed     Boolean   @default(false)
+  esrConfirmedAt   DateTime?
+  esrUpdateFlagged Boolean   @default(false)
+  esrFlaggedAt     DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  vaccinationRecord    VaccinationRecord?
+  auditLogs            AuditLog[]
+  rAVSReconciliations  RAVSReconciliation[]
+}
+
+model VaccinationRecord {
+  id           String    @id @default(cuid())
+  staffId      String    @unique
+  staff        Staff     @relation(fields: [staffId], references: [id])
+  status       String    @default("UNKNOWN")
+  vaccinatedAt DateTime?
+  vaccinatedBy String?
+  site         String?
+  batchNumber  String?
+  notes        String?
+  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime  @default(now())
+}
+
+model Clinic {
+  id        String   @id @default(cuid())
+  name      String
+  site      String
+  date      DateTime
+  startTime String
+  endTime   String
+  lead      String?
+  notes     String?
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  staffId   String
+  staff     Staff    @relation(fields: [staffId], references: [id])
+  action    String
+  changedBy String
+  oldValue  String?
+  newValue  String?
+  createdAt DateTime @default(now())
+}
+
+model StaffNHSHistory {
+  id               String   @id @default(cuid())
+  assignmentNumber String
+  nhsNumberHash    String
+  lastName         String
+  firstName        String
+  postcode         String
+  matchedSeason    String
+  confirmedMatch   Boolean  @default(false)
+  createdAt        DateTime @default(now())
+}
+
+// Status values: MATCHED | PROBABLE | POSSIBLE | UNMATCHED | CONFIRMED
+model RAVSReconciliation {
+  id              String    @id @default(cuid())
+  season          String
+  ravsNHSHash     String
+  ravsSurname     String
+  ravsFirstName   String
+  ravsPostcode    String
+  vaccineDate     String?
+  matchedStaffId  String?
+  matchedStaff    Staff?    @relation(fields: [matchedStaffId], references: [id])
+  matchTier       Int?
+  confidenceScore Int?
+  status          String    @default("UNMATCHED")
+  confirmedBy     String?
+  confirmedAt     DateTime?
+  createdAt       DateTime  @default(now())
+}

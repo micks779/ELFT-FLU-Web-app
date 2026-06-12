@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+// Role values: STAFF | VACCINATOR | FLU_LEAD
+// VaccinationStatus values: UNKNOWN | VACCINATED_ELFT | VACCINATED_ELSEWHERE | DECLINED
+
+model Staff {
+  id               String    @id @default(cuid())
+  email            String    @unique @db.NVarChar(320)
+  assignmentNumber String?   @unique @db.NVarChar(50)
+  firstName        String    @db.NVarChar(100)
+  lastName         String    @db.NVarChar(100)
+  directorate      String?   @db.NVarChar(200)
+  team             String?   @db.NVarChar(200)
+  jobTitle         String?   @db.NVarChar(200)
+  frontline        Boolean   @default(true)
+  active           Boolean   @default(true)
+  role             String    @default("STAFF") @db.NVarChar(20)
+  esrConfirmed     Boolean   @default(false)
+  esrConfirmedAt   DateTime?
+  esrUpdateFlagged Boolean   @default(false)
+  esrFlaggedAt     DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  vaccinationRecord    VaccinationRecord?
+  auditLogs            AuditLog[]
+  rAVSReconciliations  RAVSReconciliation[]
+}
+
+model VaccinationRecord {
+  id           String    @id @default(cuid())
+  staffId      String    @unique
+  staff        Staff     @relation(fields: [staffId], references: [id])
+  status       String    @default("UNKNOWN") @db.NVarChar(30)
+  vaccinatedAt DateTime?
+  vaccinatedBy String?   @db.NVarChar(320)
+  site         String?   @db.NVarChar(200)
+  batchNumber  String?   @db.NVarChar(100)
+  notes        String?   @db.NVarChar(Max)
+  updatedAt    DateTime  @updatedAt
+  createdAt    DateTime  @default(now())
+}
+
+model Clinic {
+  id        String   @id @default(cuid())
+  name      String   @db.NVarChar(200)
+  site      String   @db.NVarChar(200)
+  date      DateTime
+  startTime String   @db.NVarChar(10)
+  endTime   String   @db.NVarChar(10)
+  lead      String?  @db.NVarChar(200)
+  notes     String?  @db.NVarChar(Max)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  staffId   String
+  staff     Staff    @relation(fields: [staffId], references: [id])
+  action    String   @db.NVarChar(50)
+  changedBy String   @db.NVarChar(320)
+  oldValue  String?  @db.NVarChar(Max)
+  newValue  String?  @db.NVarChar(Max)
+  createdAt DateTime @default(now())
+}
+
+model StaffNHSHistory {
+  id               String   @id @default(cuid())
+  assignmentNumber String   @db.NVarChar(50)
+  nhsNumberHash    String   @db.NVarChar(64)
+  lastName         String   @db.NVarChar(100)
+  firstName        String   @db.NVarChar(100)
+  postcode         String   @db.NVarChar(10)
+  matchedSeason    String   @db.NVarChar(10)
+  confirmedMatch   Boolean  @default(false)
+  createdAt        DateTime @default(now())
+}
+
+enum ReconcileStatus {
+  MATCHED
+  PROBABLE
+  POSSIBLE
+  UNMATCHED
+  CONFIRMED
+}
+
+model RAVSReconciliation {
+  id              String          @id @default(cuid())
+  season          String          @db.NVarChar(10)
+  ravsNHSHash     String          @db.NVarChar(64)
+  ravsSurname     String          @db.NVarChar(100)
+  ravsFirstName   String          @db.NVarChar(100)
+  ravsPostcode    String          @db.NVarChar(10)
+  vaccineDate     String?         @db.NVarChar(20)
+  matchedStaffId  String?
+  matchedStaff    Staff?          @relation(fields: [matchedStaffId], references: [id])
+  matchTier       Int?
+  confidenceScore Int?
+  status          ReconcileStatus @default(UNMATCHED)
+  confirmedBy     String?         @db.NVarChar(320)
+  confirmedAt     DateTime?
+  createdAt       DateTime        @default(now())
+}

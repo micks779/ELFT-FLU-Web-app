@@ -1,0 +1,45 @@
+{
+  "name": "elft-flu-vaccination",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "build:prod": "prisma generate --schema=prisma/schema.production.prisma && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "prisma generate",
+    "db:generate:prod": "prisma generate --schema=prisma/schema.production.prisma",
+    "db:push": "prisma db push",
+    "db:push:prod": "prisma db push --schema=prisma/schema.production.prisma",
+    "db:migrate:prod": "prisma migrate deploy --schema=prisma/schema.production.prisma",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:seed:csv": "tsx prisma/seed.ts --csv",
+    "db:studio": "prisma studio",
+    "db:studio:prod": "prisma studio --schema=prisma/schema.production.prisma",
+    "db:reset": "prisma db push --force-reset && tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@auth/prisma-adapter": "^2.7.2",
+    "@prisma/client": "^5.22.0",
+    "csv-parse": "^6.2.1",
+    "fuse.js": "^7.4.2",
+    "next": "^15.1.0",
+    "next-auth": "5.0.0-beta.25",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.0.1",
+    "eslint": "^9",
+    "eslint-config-next": "^15.1.0",
+    "postcss": "^8",
+    "prisma": "^5.22.0",
+    "tailwindcss": "^3.4.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5"
+  }
+}
