@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import Link from "next/link"
 import Header from "@/components/layout/Header"
 import Footer from "@/components/layout/Footer"
+import AdminTabs from "@/components/admin/AdminTabs"
 import RoleManager from "@/components/admin/RoleManager"
 
 export const dynamic = "force-dynamic"
@@ -31,7 +32,11 @@ export default async function AdminPage() {
           ← My Record
         </Link>
 
-        <h1 className="text-2xl font-bold text-nhs-black mb-1">Manage Roles</h1>
+        <h1 className="text-2xl font-bold text-nhs-black mb-1">Admin</h1>
+        <p className="text-nhs-dark-grey text-sm mb-6">Flu Lead management tools.</p>
+
+        <AdminTabs />
+
         <p className="text-nhs-dark-grey text-sm mb-6">
           Grant or remove Vaccinator access for staff members.
         </p>

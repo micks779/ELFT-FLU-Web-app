@@ -61,7 +61,9 @@ async function main() {
   console.log("Seeding development data...")
 
   await prisma.auditLog.deleteMany()
+  await prisma.vaccineStock.deleteMany()
   await prisma.vaccinationRecord.deleteMany()
+  await prisma.rAVSReconciliation.deleteMany()
   await prisma.clinic.deleteMany()
   await prisma.staff.deleteMany()
 
@@ -205,6 +207,51 @@ async function main() {
         endTime: "16:30",
         lead: "Sarah Johnson",
         active: true,
+      },
+    ],
+  })
+
+  // Demo vaccine stock entries
+  await prisma.vaccineStock.createMany({
+    data: [
+      {
+        location: "Mile End Hospital",
+        stockCount: 48,
+        notes: "New delivery received",
+        recordedAt: new Date("2026-10-14T09:00:00"),
+        recordedByStaffId: fluLead.id,
+      },
+      {
+        location: "Newham Centre for Mental Health",
+        stockCount: 30,
+        recordedAt: new Date("2026-10-14T09:15:00"),
+        recordedByStaffId: fluLead.id,
+      },
+      {
+        location: "Goodmayes Hospital",
+        stockCount: 20,
+        recordedAt: new Date("2026-10-14T09:20:00"),
+        recordedByStaffId: fluLead.id,
+      },
+      {
+        location: "Mile End Hospital",
+        stockCount: 31,
+        notes: "After morning clinic",
+        recordedAt: new Date("2026-10-20T13:00:00"),
+        recordedByStaffId: fluLead.id,
+      },
+      {
+        location: "Newham Centre for Mental Health",
+        stockCount: 8,
+        notes: "Running low — reorder requested",
+        recordedAt: new Date("2026-10-20T13:10:00"),
+        recordedByStaffId: fluLead.id,
+      },
+      {
+        location: "Goodmayes Hospital",
+        stockCount: 5,
+        recordedAt: new Date("2026-10-20T13:20:00"),
+        recordedByStaffId: fluLead.id,
       },
     ],
   })

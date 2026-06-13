@@ -32,6 +32,7 @@ model Staff {
   vaccinationRecord    VaccinationRecord?
   auditLogs            AuditLog[]
   rAVSReconciliations  RAVSReconciliation[]
+  vaccineStocks        VaccineStock[]
 }
 
 model VaccinationRecord {
@@ -83,6 +84,16 @@ model StaffNHSHistory {
   matchedSeason    String   @db.NVarChar(10)
   confirmedMatch   Boolean  @default(false)
   createdAt        DateTime @default(now())
+}
+
+model VaccineStock {
+  id                  String   @id @default(cuid())
+  location            String   @db.NVarChar(200)
+  stockCount          Int
+  notes               String?  @db.NVarChar(Max)
+  recordedAt          DateTime @default(now())
+  recordedByStaffId   String
+  recordedBy          Staff    @relation(fields: [recordedByStaffId], references: [id])
 }
 
 enum ReconcileStatus {

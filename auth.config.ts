@@ -17,6 +17,13 @@ export const authConfig: NextAuthConfig = {
     error: "/",
   },
   callbacks: {
+    session({ session, token }) {
+      if (session.user) {
+        session.user.role = token.role as string
+        session.user.staffId = token.staffId as string
+      }
+      return session
+    },
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user
       const pathname = nextUrl.pathname

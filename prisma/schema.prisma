@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -32,6 +32,7 @@ model Staff {
   vaccinationRecord    VaccinationRecord?
   auditLogs            AuditLog[]
   rAVSReconciliations  RAVSReconciliation[]
+  vaccineStocks        VaccineStock[]
 }
 
 model VaccinationRecord {
@@ -83,6 +84,16 @@ model StaffNHSHistory {
   matchedSeason    String
   confirmedMatch   Boolean  @default(false)
   createdAt        DateTime @default(now())
+}
+
+model VaccineStock {
+  id                  String   @id @default(cuid())
+  location            String
+  stockCount          Int
+  notes               String?
+  recordedAt          DateTime @default(now())
+  recordedByStaffId   String
+  recordedBy          Staff    @relation(fields: [recordedByStaffId], references: [id])
 }
 
 // Status values: MATCHED | PROBABLE | POSSIBLE | UNMATCHED | CONFIRMED

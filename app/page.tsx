@@ -32,6 +32,7 @@ export default async function HomePage({ searchParams }: PageProps) {
 
   const redirectTo = site ? `/my-record/update?site=${encodeURIComponent(site)}` : "/dashboard"
   const isDev = process.env.NODE_ENV === "development"
+  const isDemo = !!process.env.DEMO_PASSWORD && !isDev
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -91,11 +92,11 @@ export default async function HomePage({ searchParams }: PageProps) {
               Use your ELFT Microsoft account (e.g. name@nhs.net)
             </p>
 
-            {/* Dev-only login panel — never shown in production */}
+            {/* Dev-only login panel */}
             {isDev && (
               <div className="border-t border-dashed border-gray-300 pt-5 text-left">
                 <p className="text-xs font-mono text-nhs-mid-grey mb-3 text-center">
-                  🛠 DEV LOGIN — no Azure AD required
+                  DEV LOGIN — no Azure AD required
                 </p>
                 <form
                   action={async (formData: FormData) => {
@@ -114,6 +115,48 @@ export default async function HomePage({ searchParams }: PageProps) {
                     <option value="david.chen@nhs.net">David Chen — Staff (declined)</option>
                     <option value="amara.diallo@nhs.net">Amara Diallo — Staff (not recorded)</option>
                   </select>
+                  <button type="submit" className="btn-outline">
+                    Sign in as selected user
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* Demo login panel — shown in production when DEMO_PASSWORD is configured */}
+            {isDemo && (
+              <div className="border-t border-gray-200 pt-5 text-left">
+                <p className="text-xs font-semibold text-nhs-mid-grey mb-3 text-center uppercase tracking-wide">
+                  Demo Access
+                </p>
+                <form
+                  action={async (formData: FormData) => {
+                    "use server"
+                    const email = formData.get("email") as string
+                    const password = formData.get("password") as string
+                    await signIn("demo-credentials", { email, password, redirectTo: "/dashboard" })
+                  }}
+                >
+                  <label htmlFor="demo-email" className="field-label text-xs">
+                    Sign in as:
+                  </label>
+                  <select id="demo-email" name="email" className="field-input text-sm mb-3">
+                    <option value="sarah.johnson@nhs.net">Sarah Johnson — Flu Lead</option>
+                    <option value="james.okafor@nhs.net">James Okafor — Vaccinator</option>
+                    <option value="priya.sharma@nhs.net">Priya Sharma — Staff (vaccinated elsewhere)</option>
+                    <option value="david.chen@nhs.net">David Chen — Staff (declined)</option>
+                    <option value="amara.diallo@nhs.net">Amara Diallo — Staff (not recorded)</option>
+                  </select>
+                  <label htmlFor="demo-password" className="field-label text-xs mt-2">
+                    Demo password:
+                  </label>
+                  <input
+                    id="demo-password"
+                    type="password"
+                    name="password"
+                    className="field-input text-sm mb-3"
+                    placeholder="Enter demo password"
+                    required
+                  />
                   <button type="submit" className="btn-outline">
                     Sign in as selected user
                   </button>
