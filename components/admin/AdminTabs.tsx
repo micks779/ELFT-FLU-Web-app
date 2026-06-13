@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 const tabs = [
   { label: "Manage Roles", href: "/admin" },
   { label: "Vaccine Tracker", href: "/admin/vaccine-tracker" },
+  { label: "RAVS Reconciliation", href: "/admin/ravs" },
 ]
 
 export default function AdminTabs() {
